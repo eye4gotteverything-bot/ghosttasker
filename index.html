@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GhosŧŦasker</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <h1>GhosŧŦasker</h1>
+  <p class="subtitle">Your text automations</p>
+  <p id="launchStatus" class="status-chip">Launched · Text access removed</p>
+  <p id="sendStatus" class="status-chip muted">Sending: OFF — no app linked</p>
+</header>
+
+<nav id="tabs" aria-label="Main">
+  <button data-tab="queue" class="tab active">Send Queue</button>
+  <button data-tab="groups" class="tab">Groups</button>
+  <button data-tab="templates" class="tab">Templates</button>
+  <button data-tab="automations" class="tab">Automations</button>
+  <button data-tab="ai" class="tab">AI Bot</button>
+  <button data-tab="apps" class="tab">Apps</button>
+  <button data-tab="plans" class="tab">Plans</button>
+</nav>
+
+<main>
+  <!-- SEND QUEUE -->
+  <section id="tab-queue" class="panel active">
+    <h2>Send Queue</h2>
+    <p>Compose a blast to a group of up to 100 numbers. Sending is a one-tap handoff: GhosŧŦasker prepares the message and opens your linked app — you tap send there. There is no background auto-sending.</p>
+    <label>Group
+      <select id="queueGroup"></select>
+    </label>
+    <label>Template (optional)
+      <select id="queueTemplate"></select>
+    </label>
+    <label>Message
+      <textarea id="queueMessage" rows="4" placeholder="Type your message. Use {name} to personalize."></textarea>
+    </label>
+    <button id="previewBtn" type="button">Preview per person</button>
+    <div id="queuePreview" class="preview"></div>
+    <button id="sendBtn" type="button" disabled>Open linked app to send</button>
+    <p class="hint" id="sendHint">Link an app in the Apps tab and approve it to enable sending.</p>
+    <h3>Sent history</h3>
+    <ul id="sentHistory" class="list"></ul>
+  </section>
+
+  <!-- GROUPS -->
+  <section id="tab-groups" class="panel">
+    <h2>Groups</h2>
+    <label>New group name
+      <input id="groupName" type="text" placeholder="Group name">
+    </label>
+    <button id="addGroupBtn" type="button">Create group</button>
+    <div id="groupList"></div>
+    <h3>Add numbers to a group</h3>
+    <label>Group
+      <select id="numbersGroup"></select>
+    </label>
+    <label>Number
+      <input id="singleNumber" type="tel" placeholder="Phone number">
+    </label>
+    <button id="addNumberBtn" type="button">Add number</button>
+    <label>Or paste many numbers (one per line, or separated by commas)
+      <textarea id="bulkNumbers" rows="5" placeholder="Paste numbers here"></textarea>
+    </label>
+    <button id="bulkAddBtn" type="button">Add pasted numbers</button>
+    <p class="hint">Duplicates are skipped. Hard cap: 100 numbers per group.</p>
+    <p id="groupMsg" class="msg" role="status"></p>
+  </section>
+
+  <!-- TEMPLATES -->
+  <section id="tab-templates" class="panel">
+    <h2>Templates</h2>
+    <label>Template name
+      <input id="templateName" type="text" placeholder="Template name">
+    </label>
+    <label>Template text (use {name} for the recipient's name)
+      <textarea id="templateBody" rows="4" placeholder="Example: Hi {name}, ..."></textarea>
+    </label>
+    <button id="addTemplateBtn" type="button">Save template</button>
+    <ul id="templateList" class="list"></ul>
+  </section>
+
+  <!-- AUTOMATIONS -->
+  <section id="tab-automations" class="panel">
+    <h2>Weekly automations</h2>
+    <p>An automation queues that day's blast for you to review and send. It does not send in the background.</p>
+    <label>Automation name
+      <input id="autoName" type="text" placeholder="Automation name">
+    </label>
+    <label>Group
+      <select id="autoGroup"></select>
+    </label>
+    <label>Template
+      <select id="autoTemplate"></select>
+    </label>
+    <fieldset>
+      <legend>Days</legend>
+      <label><input type="checkbox" class="autoDay" value="1"> Mon</label>
+      <label><input type="checkbox" class="autoDay" value="2"> Tue</label>
+      <label><input type="checkbox" class="autoDay" value="3"> Wed</label>
+      <label><input type="checkbox" class="autoDay" value="4"> Thu</label>
+      <label><input type="checkbox" class="autoDay" value="5"> Fri</label>
+      <label><input type="checkbox" class="autoDay" value="6"> Sat</label>
+      <label><input type="checkbox" class="autoDay" value="0"> Sun</label>
+    </fieldset>
+    <label>Time
+      <input id="autoTime" type="time" value="09:00">
+    </label>
+    <button id="addAutoBtn" type="button">Save automation</button>
+    <p id="autoMsg" class="msg" role="status"></p>
+    <h3>Your automations</h3>
+    <ul id="autoList" class="list"></ul>
+    <h3>Upcoming</h3>
+    <ul id="upcomingList" class="list"></ul>
+  </section>
+
+  <!-- AI BOT -->
+  <section id="tab-ai" class="panel">
+    <h2>AI Bot</h2>
+    <p>A local draft helper. It works only from your own templates and sent history saved in this browser — no external AI service, no API key, nothing leaves your device.</p>
+    <label>What is this message about?
+      <input id="aiTopic" type="text" placeholder="e.g. reminder, update, thank you">
+    </label>
+    <button id="aiDraftBtn" type="button">Suggest a draft</button>
+    <label>Suggested draft
+      <textarea id="aiDraft" rows="4"></textarea>
+    </label>
+    <p id="aiBasis" class="hint"></p>
+    <button id="aiUseBtn" type="button">Use this draft in Send Queue</button>
+  </section>
+
+  <!-- APPS -->
+  <section id="tab-apps" class="panel">
+    <h2>Apps</h2>
+    <p>Link <strong>one</strong> Android app that you approve. Sending stays OFF until one specific app is selected <em>and</em> the approval box is ticked. Unlinking turns sending off again.</p>
+    <div id="appList"></div>
+    <h3>Custom app</h3>
+    <label>App name
+      <input id="customAppName" type="text" placeholder="App name">
+    </label>
+    <label>Package name (optional)
+      <input id="customAppPackage" type="text" placeholder="com.example.app">
+    </label>
+    <button id="addCustomAppBtn" type="button">Add custom app</button>
+    <label class="approve">
+      <input id="approveBox" type="checkbox">
+      I approve linking the selected app to GhosŧŦasker for sending handoffs.
+    </label>
+    <button id="unlinkBtn" type="button">Unlink app (turn sending off)</button>
+    <p id="appMsg" class="msg" role="status"></p>
+  </section>
+
+  <!-- PLANS -->
+  <section id="tab-plans" class="panel">
+    <h2>Plans</h2>
+    <div class="plan">
+      <h3>Basic — Free</h3>
+      <p>Limited use. Core group texting, templates and queue.</p>
+    </div>
+    <div class="plan premium">
+      <h3>Premium — Unlimited</h3>
+      <p><strong>3-day free trial</strong>, then your choice of:</p>
+      <ul>
+        <li>Weekly — $5.99 / week</li>
+        <li>Monthly — $19.99 / month</li>
+        <li>Annual — $149.99 / year <strong>(Best Value)</strong></li>
+      </ul>
+      <p><strong>Important:</strong> after the 3-day free trial, the price you chose auto-charges unless you cancel before the trial ends. Subscriptions are managed and cancelled in Google Play.</p>
+      <p>On Android, Premium subscriptions run through <strong>Google Play Billing</strong>. This web version shows pricing only — it does not collect card details and does not start a real subscription.</p>
+    </div>
+    <p class="hint">Only message people who have agreed to receive your texts, and include a way for them to opt out.</p>
+  </section>
+</main>
+
+<footer>
+  <p>GhosŧŦasker · Android / Google Play apps only · Data stays in your browser (localStorage) — see PRIVACY.md</p>
+  <button id="clearDataBtn" type="button">Delete all my GhosŧŦasker data</button>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
